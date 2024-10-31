@@ -1,0 +1,52 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h3>Saude mental no trabalho</h3>
+<p>@contador visitas</p>
+
+<img src="imagem1.jpg" alt="Imagem 1" style="display: block; width: 100%; margin-bottom: 20px;" />
+<img src="imagem2.jpg" alt="Imagem 2" style="display: block; width: 100%;" />
+
+@code {
+    private int contador = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AtualizarContador();
+    }
+
+    private async Task AtualizarContador()
+    {
+        try
+        {
+            var apiUrl = "https://api.api-ninjas.com/v1/counter?id=saudemental&hit=true";
+            Http.DefaultRequestHeaders.Add("X-Api-Key", "HcNlcFpPkN6svuNN4tshqQ==5rcO32X3qCgbJYjh"); 
+
+            var response = await Http.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                // Desserializar o JSON e extrair o valor
+                var jsonResponse = JsonSerializer.Deserialize<ApiResponse>(responseContent);
+                contador = jsonResponse?.value ?? -1;
+            }
+            else
+            {
+                contador = -1; 
+            }
+        }
+        catch
+        {
+            contador = -1; 
+        }
+    }
+    
+    private class ApiResponse
+    {
+        public string? id { get; set; }
+        public int? value { get; set; }
+    }
+
+}
